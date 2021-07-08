@@ -92,5 +92,4 @@ router.post('/login', async (req, res) => {
     res.json({ msg: ' welcome to the auth locked route 🐶🐶🐶'})
   })
 
-
 module.exports = router

@@ -1,7 +1,6 @@
 const jwt = require('jsonwebtoken')
 const db = require('../../models')
 
-
 const authLockedRoute = async (req, res, next) => {
   try {
     // get the jwt from authorization headers
