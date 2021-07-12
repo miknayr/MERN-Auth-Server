@@ -27,4 +27,6 @@ module.exports = {
   connect,
   User: mongoose.model('user', require('./User')),
   Friend: mongoose.model('friend', require('./Friend'))
+  Event: mongoose.model('event', require('./Event'))
+
 }
