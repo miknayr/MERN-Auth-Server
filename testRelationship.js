@@ -6,11 +6,11 @@ const dbConnection = async () => {
   try {
     // cREATE
   const foundUser1 = await db.User.findOne({
-      name:"jackie1"
+      name:"jd"
   })
     // console.log('found user1:', foundUser1)
   const foundUser2= await db.User.findOne({
-      name:"jackie2"
+      name:"jdinh"
   })
 //   console.log('found user2:', foundUser2)
 
@@ -21,8 +21,8 @@ const dbConnection = async () => {
     await foundUser2.save()
 
 
-    console.log(foundUser1)
-    console.log(foundUser2)
+    console.log("found 1:", foundUser1)
+    console.log("found 2", foundUser2)
    
     // READ -- at long
 
