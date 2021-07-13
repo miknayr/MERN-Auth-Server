@@ -9,6 +9,19 @@ router.get('/', (req, res) => {
   res.json({msg: 'hi! the user endpoint is ok 👌'})
 })
 
+// adding friend list route
+router.get('/friends/:id', async (req,res) => {
+  console.log(req.params.id, "PARAMS")
+  try{
+    const findUser = await db.User.findById(req.params.id)
+    console.log("find User:",findUser)
+    res.json(findUser)
+  } catch(err){
+    console.log(err)
+  }
+ 
+})
+
 // POST /users/register -- CREATE new user (aka register)
 
 router.post('/register', async (req, res) => {
@@ -75,7 +88,8 @@ router.post('/login', async (req, res) => {
     }
 
     // sign the jwt and send it back
-    const token = await jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: 60 })
+    const token = await jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: '24h' })
+
     res.json({ token })
   } catch (err) {
     console.log(err)

@@ -1,5 +1,6 @@
 // require mongoose package 
 const mongoose = require('mongoose')
+require('dotenv').config()
 
 // connection function
 const connect = () => {
@@ -24,5 +25,6 @@ const connect = () => {
 // export the connection function and models
 module.exports = {
   connect,
-  User: mongoose.model('user', require('./User'))
+  User: mongoose.model('user', require('./User')),
+  Event: mongoose.model('event', require('./Event'))
 }
