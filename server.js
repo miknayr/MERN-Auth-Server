@@ -42,7 +42,7 @@ app.get('/', middleWare, (req, res) => {
 })
 
 
-app.get('/', (req, res) => {
+app.get('/events', (req, res) => {
   res.json({msg: 'hello🌊'})
 })
 
