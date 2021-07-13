@@ -27,5 +27,4 @@ module.exports = {
   connect,
   User: mongoose.model('user', require('./User')),
   Event: mongoose.model('event', require('./Event'))
-
 }
