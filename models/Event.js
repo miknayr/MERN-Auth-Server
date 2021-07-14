@@ -3,7 +3,7 @@ const mongoose = require('mongoose')
 const EventSchema = new mongoose.Schema({
   eventName: String,
   location: Array,
-  friend: mongoose.Schema.Types.ObjectId, ref:'User'
+  // friend: mongoose.Schema.Types.ObjectId, ref:'User'
   
   
 }, {
