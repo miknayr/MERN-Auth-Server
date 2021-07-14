@@ -2,8 +2,10 @@ const mongoose = require('mongoose')
 
 const EventSchema = new mongoose.Schema({
   eventName: String,
-  location: String,
-  zoneList: Array
+  location: Array,
+  friend: mongoose.Schema.Types.ObjectId, ref:'User'
+  
+  
 }, {
   timestamps: true
 })
