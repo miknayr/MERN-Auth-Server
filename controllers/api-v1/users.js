@@ -10,7 +10,7 @@ router.get('/', (req, res) => {
 })
 
 // adding friend list route
-router.get('/friends/:id', async (req,res) => {
+router.get('/:id', async (req,res) => {
   console.log(req.params.id, "PARAMS")
   try{
     const findUser = await db.User.findById(req.params.id).populate('friends')

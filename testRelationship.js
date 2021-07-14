@@ -6,11 +6,11 @@ const dbConnection = async () => {
   try {
     // cREATE
   const foundUser1 = await db.User.findOne({
-      name:"jd"
+      name:"test3"
   })
     // console.log('found user1:', foundUser1)
   const foundUser2= await db.User.findOne({
-      name:"jdinh"
+      name:"jd"
   })
 //   console.log('found user2:', foundUser2)
 
