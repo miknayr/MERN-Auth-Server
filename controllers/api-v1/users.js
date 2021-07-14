@@ -10,6 +10,7 @@ router.get('/', (req, res) => {
 })
 
 // adding friend list route
+
 router.get('/profile/:id', async (req,res) => {
     try {
         const findUser = await db.User.findById(req.params.id).populate('friends')
@@ -18,6 +19,7 @@ router.get('/profile/:id', async (req,res) => {
     } catch(err) {
         console.log(err)
     }
+
 })
 
 // POST /users/register -- CREATE new user (aka register)
