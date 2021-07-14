@@ -6,8 +6,8 @@ const dbTest = async () => {
   try {
     // cREATE
     const newUser = new db.User({
-      name: 'jackie2',
-      email: 'jackietest2@gmail.com',
+      name: 'jdinh',
+      email: 'jd4@gmail.com',
       password: '1234'
     })
     await newUser.save()
