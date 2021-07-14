@@ -10,27 +10,26 @@ router.get('/', (req, res) => {
 })
 
 // adding friend list route
-router.get('/:id', async (req,res) => {
-  console.log(req.params.id, "PARAMS")
-  try{
-    const findUser = await db.User.findById(req.params.id).populate('friends')
-    console.log("find User:",findUser)
-    res.json(findUser)
-  } catch(err){
-    console.log(err)
-  }
- 
+
+router.get('/profile/:id', async (req,res) => {
+    try {
+        const findUser = await db.User.findById(req.params.id).populate('friends')
+        console.log("find User:",findUser)
+        res.json(findUser)
+    } catch(err) {
+        console.log(err)
+    }
+
 })
 
 // POST /users/register -- CREATE new user (aka register)
-
 router.post('/register', async (req, res) => {
   try {
     // check if user exists alrdy
     const findUser = await db.User.findOne({
       email: req.body.email
     })
-    // if t he user found -- dont let them register
+    // if the user found -- dont let them register
     if(findUser) return res.status(400).json({msg: 'user already exists in the db'})
     console.log(findUser)
 
@@ -89,7 +88,6 @@ router.post('/login', async (req, res) => {
 
     // sign the jwt and send it back
     const token = await jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: '24h' })
-
     res.json({ token })
   } catch (err) {
     console.log(err)
