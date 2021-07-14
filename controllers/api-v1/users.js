@@ -13,7 +13,7 @@ router.get('/', (req, res) => {
 router.get('/friends/:id', async (req,res) => {
   console.log(req.params.id, "PARAMS")
   try{
-    const findUser = await db.User.findById(req.params.id)
+    const findUser = await db.User.findById(req.params.id).populate('friends')
     console.log("find User:",findUser)
     res.json(findUser)
   } catch(err){
@@ -54,7 +54,7 @@ router.post('/register', async (req, res) => {
       id: newUser.id,
      }
      // sign the jwt and send a response
-     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: 60 })
+     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '24h'})
 
      res.json({ token })
 

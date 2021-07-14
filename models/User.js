@@ -4,7 +4,10 @@ const UserSchema = new mongoose.Schema({
   name: String, 
   password: String,
   email: String,
-  friends: Array
+  friends:[{
+    type: mongoose.Schema.Types.ObjectId,
+    ref:'user'
+}],
 }, {
   timestamps: true
 })
