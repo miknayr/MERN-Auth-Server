@@ -41,18 +41,12 @@ app.get('/', middleWare, (req, res) => {
   res.json({ msg:  'hello from the backend! 👋 '})
 })
 
-
 app.get('/events', (req, res) => {
   res.json({msg: 'hello🌊'})
 })
-
 
 // listen on port
 app.listen(PORT, () => {
     rowdyResults.print()
     console.log(`Listening on port ${PORT}`)
 })
-
-
-
-
