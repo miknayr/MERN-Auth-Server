@@ -28,20 +28,21 @@ router.post('/events/:id', async (req, res) => {
   // create event with req.body
   // grab user from db
   // grab associated friend from db 
+
+  // grab the currentuser from req.params.id, findOne myself, cross-push for db, then save
+  // let find currentuser
   try {
-    let { friend, ...eventName} = req.body
-    let friendFinder = await db.User.findOne({ name: friend})
-    let createdEvent = await db.Event.create({ name: eventName })
-    const newEvent = await db.Event({
-      eventName: req.body.eventName,
-      location: req.body.location,
-      friend: foundFriend
-    })
-    foundFriend.friend.push(createdEvent._id)
-    createdEvent.eventName.push(foundFriend._id)
-    friendFinder.save()
-    newEvent.save()
-    res.send(newEvent)
+    let { friend, ...eventInfo} = req.body
+    let findSelf = await db.User.findById(req.params.id)
+    let foundUser = await db.User.findOne({ name: friend})
+    let createdEvent = await db.Event.create(eventInfo)
+    findSelf.events.push(createdEvent._id)
+    foundUser.events.push(createdEvent._id)
+    createdEvent.users.push(foundUser._id)
+    findSelf.save()
+    foundUser.save()
+    createdEvent.save()
+    console.log(createdEvent)
   } catch(err) {
     console.log(`you have an ${err} in Event postroute`)
   }
