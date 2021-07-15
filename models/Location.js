@@ -2,7 +2,9 @@ const mongoose = require('mongoose')
 
 const LocationSchema = new mongoose.Schema({
     name: {
-        type:String, 
+
+        type: String, 
+
         required:true
     },
     friends: [{
@@ -10,4 +12,5 @@ const LocationSchema = new mongoose.Schema({
     }]
 }, { timestamps: true })
 
-module.exports = LocationSchema 
+
+module.exports = LocationSchema
