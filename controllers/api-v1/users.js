@@ -11,7 +11,7 @@ router.get('/', (req, res) => {
 
 // GET /locations
 router.get('/location/:id', (req, res) => {
-  db.Location.findById(req.params.id).populate('friends')
+  db.Location.findById(req.params.id).populate('friends').populate('location')
   .then(foundLocation => {
     res.send(foundLocation)
   })
@@ -42,40 +42,84 @@ router.delete('/location/:id', (req, res) => {
   })
 })
 
-// adding friend list route
+// GET current user location
+router.get('/profile/:id', async (req, res) => {
+    try {
+        const findUser = await db.User.findById(req.params.id).populate('location')
+        res.json(findUser)
+    } catch (err) {
+        console.log(err)
+    }
+})
 
-router.get('/profile/:id', async (req,res) => {
-  console.log(req.params.id, "PARAMS")
-  try{
-    const findUser = await db.User.findById(req.params.id).populate('friends')
-    console.log("find User:",findUser)
-    res.json(findUser)
-  } catch(err){
-    console.log(err)
-  }
- 
+// PUT (update) current user location
+router.put('/profile/:id', async (req, res) => {
+    try {
+        const currentUser = await db.User.findById(req.params.id)
+        const findLocation = await db.Location.findOne({name: req.body.placeName})
+
+        currentUser.location = await findLocation
+
+        await currentUser.save()
+
+        res.json({currentUser})
+
+    } catch (err) {
+        console.log(err)
+        res.send(err)
+    }
+})
+
+// adding friend list route
+router.get('/friends/:id', async (req,res) => {
+    try{
+        const findUser = await db.User.findById(req.params.id).populate('friends')
+        console.log("find User:",findUser)
+        res.json(findUser)
+    } catch(err){
+        console.log(err)
+    }
 })
 
 // POST -- adding new friends
 router.post('/friends/:id', async(req,res) => {
-  try{  
-    const currentUser = await db.User.findById(req.params.id).populate('friends')
-    const findFriend = await db.User.findOne({
-      name: req.body.name
-    })
+
+    try {  
+        const currentUser = await db.User.findById(req.params.id)
+        const findFriend = await db.User.findOne({ name: req.body.name })
     if (!findFriend) return res.status(400).json({msg: 'Your friend does not have this app' })
+        currentUser.friends.push(findFriend._id)
+        findFriend.friends.push(currentUser._id)
+    
+        await currentUser.save()
+        await findFriend.save()
+        res.json({currentUser})
 
-    currentUser.friends.push(findFriend._id)
-    findFriend.friends.push(currentUser._id)
-   
-   
-    await currentUser.save()
-    await findFriend.save()
-    res.json({currentUser})
+    } catch (err) {
+        console.log(err)
+    }
+})
 
-  } catch(err){
-    console.log(err)
-  }
+
+    
+    
+    
+    
+router.delete('/friends/:id', async (req, res) => {
+    try {
+        const currentUser = await db.User.findById(req.params.id)
+        const findFriend = await db.User.findOne({ name: req.body.name })
+
+        currentUser.friends.pop(findFriend._id)
+        findFriend.friends.pop(currentUser._id)
+        
+        await currentUser.save()
+        await findFriend.save()
+        res.json({currentUser})
+
+    } catch (err) {
+        console.log(err)
+    }
 })
 
 // Event Creation Route
@@ -111,6 +155,8 @@ router.post('/register', async (req, res) => {
     const findUser = await db.User.findOne({
       email: req.body.emails
     })
+    .populate('friends')
+    .populate('location')
     // if the user found -- dont let them register
     if(findUser) return res.status(400).json({msg: 'user already exists in the db'})
     console.log(findUser)
@@ -147,26 +193,38 @@ router.post('/register', async (req, res) => {
 
 // POST /user/login -- validate login credentials
 router.post('/login', async (req, res) => {
-  try {
-    // try to find the user in the database
-    const findUser = await db.User.findOne({
-      email: req.body.email
-    })
-    const validationFailedMessage = 'incorrect username or password 🤣'
-    // if the user found -- return immediately 
-    if (!findUser) return res.status(400).json({msg: validationFailedMessage })
-    // check the user's password from the db against what is in the req.body
-    const matchPassword = await bcrypt.compare(req.body.password, findUser.password)
+    try {
+        // try to find the user in the database
+        const findUser = await db.User.findOne({
+        email: req.body.email
+        })
+        .populate('friends')
+        .populate('location')
+        console.log(findUser)
+        const validationFailedMessage = 'incorrect username or password 🤣'
+        // if the user found -- return immediately 
+        if (!findUser) return res.status(400).json({msg: validationFailedMessage })
+        // check the user's password from the db against what is in the req.body
+        const matchPassword = await bcrypt.compare(req.body.password, findUser.password)
 
-    // if the password doesnt match -- return immediately
-    if (!matchPassword) return res.status(400).json({msg: validationFailedMessage })
-   
+        // if the password doesnt match -- return immediately
+        if (!matchPassword) return res.status(400).json({msg: validationFailedMessage })
+    
 
-    // create the jwt payload
-    const payload = {
-      name: findUser.name,
-      email: findUser.email,
-      id: findUser.id
+        // create the jwt payload
+        const payload = {
+        name: findUser.name,
+        email: findUser.email,
+        id: findUser.id
+        }
+
+        // sign the jwt and send it back
+        const token = await jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: '24h' })
+        res.json({ token })
+    
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({msg: 'internal server error'})
     }
 
     // sign the jwt and send it back
@@ -177,6 +235,7 @@ router.post('/login', async (req, res) => {
     console.log(err)
     res.status(500).json({msg: 'internal server error'})
   }
+
 })
 
 
