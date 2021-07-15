@@ -7,7 +7,7 @@ const testEvent = async () => {
         const newEvent = new db.Event({
             eventName: 'Code: Chella',
             location: 'The Cloud',
-            zoneList: [ 'stage 1', 'stage 2', 'bathrooms', 'food trucks A', 'food trucks B', 'bar tent', 'medic tent']
+            friend: 'test3'
         })
         await newEvent.save()
         console.log('new event: ', newEvent)

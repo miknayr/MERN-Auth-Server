@@ -41,9 +41,9 @@ app.get('/', middleWare, (req, res) => {
   res.json({ msg:  'hello from the backend! 👋 '})
 })
 
-app.get('/events', (req, res) => {
-  res.json({msg: 'hello🌊'})
-})
+// app.get('/api-v1/users/events/:id', (req, res) => {
+//   res.json({msg: 'hello🌊'})
+// })
 
 // listen on port
 app.listen(PORT, () => {

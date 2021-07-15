@@ -10,18 +10,6 @@ router.get('/', (req, res) => {
 })
 
 // adding friend list route
-<<<<<<< HEAD
-router.get('/:id', async (req,res) => {
-  console.log(req.params.id, "PARAMS")
-  try{
-    const findUser = await db.User.findById(req.params.id) //.populate('friends')
-    console.log("find User:",findUser)
-    res.json(findUser)
-  } catch(err){
-    console.log(err)
-  }
- 
-=======
 
 router.get('/profile/:id', async (req,res) => {
     try {
@@ -32,7 +20,31 @@ router.get('/profile/:id', async (req,res) => {
         console.log(err)
     }
 
->>>>>>> 0c6eae29927d78fa5c0afcd17ff12eaac7af1fb7
+})
+
+// Event Creation Route
+
+router.post('/events/:id', async (req, res) => {
+  // create event with req.body
+  // grab user from db
+  // grab associated friend from db 
+  try {
+    let { friend, ...eventName} = req.body
+    let friendFinder = await db.User.findOne({ name: friend})
+    let createdEvent = await db.Event.create({ name: eventName })
+    const newEvent = await db.Event({
+      eventName: req.body.eventName,
+      location: req.body.location,
+      friend: foundFriend
+    })
+    foundFriend.friend.push(createdEvent._id)
+    createdEvent.eventName.push(foundFriend._id)
+    friendFinder.save()
+    newEvent.save()
+    res.send(newEvent)
+  } catch(err) {
+    console.log(`you have an ${err} in Event postroute`)
+  }
 })
 
 // POST /users/register -- CREATE new user (aka register)
@@ -40,7 +52,7 @@ router.post('/register', async (req, res) => {
   try {
     // check if user exists alrdy
     const findUser = await db.User.findOne({
-      email: req.body.email
+      email: req.body.emails
     })
     // if the user found -- dont let them register
     if(findUser) return res.status(400).json({msg: 'user already exists in the db'})
