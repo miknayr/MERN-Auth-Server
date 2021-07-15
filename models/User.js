@@ -17,7 +17,11 @@ const UserSchema = new mongoose.Schema({
     location: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Location'
-    }]
+    }],
+    events: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Event'
+  }]
 }, { timestamps: true })
 
 module.exports = UserSchema

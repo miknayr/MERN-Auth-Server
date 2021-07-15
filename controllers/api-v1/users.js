@@ -161,4 +161,21 @@ router.post('/login', async (req, res) => {
     res.json({ msg: ' welcome to the auth locked route 🐶🐶🐶'})
   })
 
+
+  // PUT /bounties/:id -- UPDATE one bounty and redirect to /bounties
+
+router.put('/profile/edit', (req, res) => {
+  db.User.findById(req.params.id)
+  .then(user => {
+    user.name = req.body.name
+
+    user.save()
+    .then(() => {
+      res.redirect('/profile')
+    })
+    .catch ((err) => console.log(err))
+  })
+  .catch ((err) => console.log(err))
+})
+
 module.exports = router
