@@ -9,17 +9,73 @@ router.get('/', (req, res) => {
   res.json({msg: 'hi! the user endpoint is ok 👌'})
 })
 
+// GET /locations
+router.get('/location/:id', (req, res) => {
+  db.Location.findById(req.params.id).populate('friends')
+  .then(foundLocation => {
+    res.send(foundLocation)
+  })
+  .catch(err => {
+    console.log(err)
+  })
+})
+
+router.get('/location', (req, res) => {
+  db.Location.find().populate('friends')
+  .then(foundLocations => {
+    res.json(foundLocations)
+  })
+  .catch(err => {
+    console.log(err)
+  })
+})
+
+router.delete('/location/:id', (req, res) => {
+  db.Location.findOneAndDelete({
+    _id: req.params.id
+  }, {useFindAndModify: false})
+  .then(deletedLocation => {
+    res.send(deletedLocation)
+  })
+  .catch(err => {
+    console.log(err)
+  })
+})
+
 // adding friend list route
 
 router.get('/profile/:id', async (req,res) => {
-    try {
-        const findUser = await db.User.findById(req.params.id).populate('friends')
-        console.log("find User:",findUser)
-        res.json(findUser)
-    } catch(err) {
-        console.log(err)
-    }
+  console.log(req.params.id, "PARAMS")
+  try{
+    const findUser = await db.User.findById(req.params.id).populate('friends')
+    console.log("find User:",findUser)
+    res.json(findUser)
+  } catch(err){
+    console.log(err)
+  }
+ 
+})
 
+// POST -- adding new friends
+router.post('/friends/:id', async(req,res) => {
+  try{  
+    const currentUser = await db.User.findById(req.params.id).populate('friends')
+    const findFriend = await db.User.findOne({
+      name: req.body.name
+    })
+    if (!findFriend) return res.status(400).json({msg: 'Your friend does not have this app' })
+
+    currentUser.friends.push(findFriend._id)
+    findFriend.friends.push(currentUser._id)
+   
+   
+    await currentUser.save()
+    await findFriend.save()
+    res.json({currentUser})
+
+  } catch(err){
+    console.log(err)
+  }
 })
 
 // Event Creation Route
@@ -79,7 +135,7 @@ router.post('/register', async (req, res) => {
       id: newUser.id,
      }
      // sign the jwt and send a response
-     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '24h'})
+     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d'})
 
      res.json({ token })
 
@@ -104,6 +160,7 @@ router.post('/login', async (req, res) => {
 
     // if the password doesnt match -- return immediately
     if (!matchPassword) return res.status(400).json({msg: validationFailedMessage })
+   
 
     // create the jwt payload
     const payload = {
@@ -113,8 +170,9 @@ router.post('/login', async (req, res) => {
     }
 
     // sign the jwt and send it back
-    const token = await jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: '24h' })
+    const token = await jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: '7d' })
     res.json({ token })
+   
   } catch (err) {
     console.log(err)
     res.status(500).json({msg: 'internal server error'})
@@ -129,5 +187,22 @@ router.post('/login', async (req, res) => {
     // send private data back
     res.json({ msg: ' welcome to the auth locked route 🐶🐶🐶'})
   })
+
+
+  // PUT /bounties/:id -- UPDATE one bounty and redirect to /bounties
+
+router.put('/profile/edit', (req, res) => {
+  db.User.findById(req.params.id)
+  .then(user => {
+    user.name = req.body.name
+
+    user.save()
+    .then(() => {
+      res.redirect('/profile')
+    })
+    .catch ((err) => console.log(err))
+  })
+  .catch ((err) => console.log(err))
+})
 
 module.exports = router

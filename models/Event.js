@@ -1,13 +1,16 @@
 const mongoose = require('mongoose')
 const EventSchema = new mongoose.Schema({
   eventName: String,
-  location: String,
-  users: [{ type: mongoose.Schema.Types.ObjectId,
+
+  users:[{ type: mongoose.Schema.Types.ObjectId,
     ref: 'User'}],
-  // location: [{
-    // type: mongoose.Schema.Types.ObjectId, ref:'Location'
-},
- {
-  timestamps: true })
+
+  location: [{
+    type: mongoose.Schema.Types.ObjectId, ref:'Location'
+  }]
+  
+}, {
+  timestamps: true
+})
 
 module.exports = EventSchema
