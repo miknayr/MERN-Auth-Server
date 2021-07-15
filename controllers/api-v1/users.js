@@ -154,7 +154,7 @@ router.post('/register', async (req, res) => {
     .populate('location')
     // if the user found -- dont let them register
     if(findUser) return res.status(400).json({msg: 'user already exists in the db'})
-    console.log(findUser)
+
 
     // hash password from req.body
     const password = req.body.password
@@ -195,7 +195,7 @@ router.post('/login', async (req, res) => {
         })
         .populate('friends')
         .populate('location')
-        console.log(findUser)
+
         const validationFailedMessage = 'incorrect username or password 🤣'
         // if the user found -- return immediately 
         if (!findUser) return res.status(400).json({msg: validationFailedMessage })
