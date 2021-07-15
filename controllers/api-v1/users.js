@@ -83,10 +83,11 @@ router.get('/friends/:id', async (req,res) => {
 
 // POST -- adding new friends
 router.post('/friends/:id', async(req,res) => {
+
     try {  
         const currentUser = await db.User.findById(req.params.id)
         const findFriend = await db.User.findOne({ name: req.body.name })
-
+    if (!findFriend) return res.status(400).json({msg: 'Your friend does not have this app' })
         currentUser.friends.push(findFriend._id)
         findFriend.friends.push(currentUser._id)
     
@@ -99,6 +100,11 @@ router.post('/friends/:id', async(req,res) => {
     }
 })
 
+
+    
+    
+    
+    
 router.delete('/friends/:id', async (req, res) => {
     try {
         const currentUser = await db.User.findById(req.params.id)
@@ -116,12 +122,38 @@ router.delete('/friends/:id', async (req, res) => {
     }
 })
 
+// Event Creation Route
+
+router.post('/events/:id', async (req, res) => {
+  // create event with req.body
+  // grab user from db
+  // grab associated friend from db 
+
+  // grab the currentuser from req.params.id, findOne myself, cross-push for db, then save
+  // let find currentuser
+  try {
+    let { friend, ...eventInfo} = req.body
+    let findSelf = await db.User.findById(req.params.id)
+    let foundUser = await db.User.findOne({ name: friend})
+    let createdEvent = await db.Event.create(eventInfo)
+    findSelf.events.push(createdEvent._id)
+    foundUser.events.push(createdEvent._id)
+    createdEvent.users.push(foundUser._id)
+    findSelf.save()
+    foundUser.save()
+    createdEvent.save()
+    console.log(createdEvent)
+  } catch(err) {
+    console.log(`you have an ${err} in Event postroute`)
+  }
+})
+
 // POST /users/register -- CREATE new user (aka register)
 router.post('/register', async (req, res) => {
   try {
     // check if user exists alrdy
     const findUser = await db.User.findOne({
-      email: req.body.email
+      email: req.body.emails
     })
     .populate('friends')
     .populate('location')
@@ -149,7 +181,7 @@ router.post('/register', async (req, res) => {
       id: newUser.id,
      }
      // sign the jwt and send a response
-     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '24h'})
+     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d'})
 
      res.json({ token })
 
@@ -194,6 +226,16 @@ router.post('/login', async (req, res) => {
         console.log(err)
         res.status(500).json({msg: 'internal server error'})
     }
+
+    // sign the jwt and send it back
+    const token = await jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: '7d' })
+    res.json({ token })
+   
+  } catch (err) {
+    console.log(err)
+    res.status(500).json({msg: 'internal server error'})
+  }
+
 })
 
 
@@ -204,5 +246,22 @@ router.post('/login', async (req, res) => {
     // send private data back
     res.json({ msg: ' welcome to the auth locked route 🐶🐶🐶'})
   })
+
+
+  // PUT /bounties/:id -- UPDATE one bounty and redirect to /bounties
+
+router.put('/profile/edit', (req, res) => {
+  db.User.findById(req.params.id)
+  .then(user => {
+    user.name = req.body.name
+
+    user.save()
+    .then(() => {
+      res.redirect('/profile')
+    })
+    .catch ((err) => console.log(err))
+  })
+  .catch ((err) => console.log(err))
+})
 
 module.exports = router

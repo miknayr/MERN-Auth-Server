@@ -30,6 +30,7 @@ app.use((req, res, next) => {
 })
 // controllers
 app.use('/api-v1/users', require('./controllers/api-v1/users.js'))
+// app.use('/api-v1/events', require('./controllers/api-v1/events.js'))
 
 const middleWare = (req, res, next) => {
   console.log(' i am a route specific middleware! 👾')
@@ -41,9 +42,13 @@ app.get('/', middleWare, (req, res) => {
   res.json({ msg:  'hello from the backend! 👋 '})
 })
 
-app.get('/events', (req, res) => {
-  res.json({msg: 'hello🌊'})
-})
+<<<<<<< HEAD
+// app.get('/api-v1/users/events/:id', (req, res) => {
+=======
+// app.get('/events', (req, res) => {
+>>>>>>> 9928a89a2600fb0821b0af410e0af811e89448a6
+//   res.json({msg: 'hello🌊'})
+// })
 
 // listen on port
 app.listen(PORT, () => {
