@@ -10,7 +10,7 @@ router.get('/', (req, res) => {
 })
 
 // adding friend list route
-router.get('/:id', async (req,res) => {
+router.get('/profile/:id', async (req,res) => {
   console.log(req.params.id, "PARAMS")
   try{
     const findUser = await db.User.findById(req.params.id).populate('friends')
@@ -20,6 +20,27 @@ router.get('/:id', async (req,res) => {
     console.log(err)
   }
  
+})
+
+// POST -- adding new friends
+router.post('/friends/:id', async(req,res) => {
+  try{  
+    const currentUser = await db.User.findById(req.params.id)
+    const findFriend = await db.User.findOne({
+      name: req.body.name
+    })
+
+    currentUser.friends.push(findFriend._id)
+    findFriend.friends.push(currentUser._id)
+   
+   
+    await currentUser.save()
+    await findFriend.save()
+    res.json({currentUser})
+
+  } catch(err){
+    console.log(err)
+  }
 })
 
 // POST /users/register -- CREATE new user (aka register)
@@ -79,6 +100,7 @@ router.post('/login', async (req, res) => {
 
     // if the password doesnt match -- return immediately
     if (!matchPassword) return res.status(400).json({msg: validationFailedMessage })
+   
 
     // create the jwt payload
     const payload = {
@@ -89,8 +111,9 @@ router.post('/login', async (req, res) => {
 
     // sign the jwt and send it back
     const token = await jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: '24h' })
-
+   
     res.json({ token })
+   
   } catch (err) {
     console.log(err)
     res.status(500).json({msg: 'internal server error'})
