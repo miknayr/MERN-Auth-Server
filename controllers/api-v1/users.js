@@ -9,6 +9,39 @@ router.get('/', (req, res) => {
   res.json({msg: 'hi! the user endpoint is ok 👌'})
 })
 
+// GET /locations
+router.get('/location/:id', (req, res) => {
+  db.Location.findById(req.params.id).populate('friends')
+  .then(foundLocation => {
+    res.send(foundLocation)
+  })
+  .catch(err => {
+    console.log(err)
+  })
+})
+
+router.get('/location', (req, res) => {
+  db.Location.find().populate('friends')
+  .then(foundLocations => {
+    res.json(foundLocations)
+  })
+  .catch(err => {
+    console.log(err)
+  })
+})
+
+router.delete('/location/:id', (req, res) => {
+  db.Location.findOneAndDelete({
+    _id: req.params.id
+  }, {useFindAndModify: false})
+  .then(deletedLocation => {
+    res.send(deletedLocation)
+  })
+  .catch(err => {
+    console.log(err)
+  })
+})
+
 // adding friend list route
 
 router.get('/profile/:id', async (req,res) => {

@@ -11,7 +11,12 @@ const UserSchema = new mongoose.Schema({
         required:true
     },
     friends: [{
-        type: mongoose.Schema.Types.ObjectId, ref:'User'
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    }],
+    location: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Location'
     }]
 }, { timestamps: true })
 
