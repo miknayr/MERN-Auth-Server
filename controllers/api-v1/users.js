@@ -108,6 +108,7 @@ router.delete('/friends/:id', async (req, res) => {
 })
 
 
+
 // DELETE CURRENT USER - - - - - - - - - - - - - - - - -
 router.delete('/delete/:id', (req, res) => {
     db.User.findOneAndDelete({
