@@ -13,6 +13,7 @@ db.connect()
 const app = express()
 const PORT = process.env.PORT || 3001
 const rowdyResults = rowdy.begin(app)
+
 // middlewares
 app.use(cors())
 // body parser middleware
@@ -24,6 +25,7 @@ app.use((req,res, next) =>{
 res.locals.anything = 'rocket🚀'
 next()
 })
+
 
 app.use((req, res, next) => {
   // console.log('hello from a middleware! ')
