@@ -3,6 +3,7 @@ const db = require('../../models')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const authLockedRoute = require('./authLockedRoute.js')
+// const { mapValueFieldNames } = require('sequelize/types/lib/utils')
 
 // GET /users -- test api endpoint
 router.get('/', (req, res) => {
@@ -120,23 +121,23 @@ router.delete('/friends/:id', async (req, res) => {
 // Event Creation Route
 
 router.post('/events/:id', async (req, res) => {
-  // create event with req.body
-  // grab user from db
-  // grab associated friend from db 
-
-  // grab the currentuser from req.params.id, findOne myself, cross-push for db, then save
-  // let find currentuser
+  let { friend, location, eventName } = req.body
+  let findSelf = await db.User.findById(req.params.id)
+  let foundUser = await db.User.findOne({ name: friend })
+  let createdEvent = await db.Event.create({eventName})
+  let locationName = req.body.location
   try {
-    let { friend, ...eventInfo} = req.body
-    let findSelf = await db.User.findById(req.params.id)
-    let foundUser = await db.User.findOne({ name: friend})
-    let createdEvent = await db.Event.create(eventInfo)
+    locationName.events.push(createdEvent._id)
     findSelf.events.push(createdEvent._id)
     foundUser.events.push(createdEvent._id)
     createdEvent.users.push(foundUser._id)
+    createdEvent.users.push(findSelf._id)
+    // createdEvent.users.push(locationName._id)
     findSelf.save()
     foundUser.save()
+    // locationName.save()
     createdEvent.save()
+
     console.log(createdEvent)
   } catch(err) {
     console.log(`you have an ${err} in Event postroute`)
@@ -154,7 +155,6 @@ router.post('/register', async (req, res) => {
     .populate('location')
     // if the user found -- dont let them register
     if(findUser) return res.status(400).json({msg: 'user already exists in the db'})
-
 
     // hash password from req.body
     const password = req.body.password
