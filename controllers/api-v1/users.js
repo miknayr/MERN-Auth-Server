@@ -105,6 +105,15 @@ router.delete('/friends/:id', async (req, res) => {
     }
 })
 
+// DELETE CURRENT USER - - - - - - - - - - - - - - - - -
+router.delete('/delete/:id', (req, res) => {
+    db.User.findOneAndDelete({
+        _id: req.params.id
+    }, {useFindAndModify: false})
+    .then(deletedUser => { res.send(deletedUser) })
+    .catch(err => { console.log(err) })
+})
+
 // Event Creation Route
 
 router.post('/events/:id', async (req, res) => {
