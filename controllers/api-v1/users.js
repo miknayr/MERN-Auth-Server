@@ -3,47 +3,37 @@ const db = require('../../models')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const authLockedRoute = require('./authLockedRoute.js')
-// const { mapValueFieldNames } = require('sequelize/types/lib/utils')
+
 
 // GET /users -- test api endpoint
 router.get('/', (req, res) => {
   res.json({msg: 'hi! the user endpoint is ok 👌'})
 })
 
-// GET /locations
-router.get('/location/:id', (req, res) => {
-  db.Location.findById(req.params.id).populate('friends').populate('location')
-  .then(foundLocation => {
-    res.send(foundLocation)
-  })
-  .catch(err => {
-    console.log(err)
-  })
-})
-
+// GET ALL LOCATIONS  - - - - - - - - - - - - - - - - -
 router.get('/location', (req, res) => {
-  db.Location.find().populate('friends')
-  .then(foundLocations => {
-    res.json(foundLocations)
-  })
-  .catch(err => {
-    console.log(err)
-  })
+    db.Location.find().populate('user')
+    .then(foundLocations => { res.json(foundLocations) })
+    .catch(err => { console.log(err) })
 })
 
+// GET SPECIFIC LOCATION  - - - - - - - - - - - - - - - - -
+router.get('/location/:id', (req, res) => {
+    db.Location.findById(req.params.id).populate('friends').populate('location')
+    .then(foundLocation => { res.send(foundLocation) })
+    .catch(err => { console.log(err) })
+})
+
+// DELETE SPECIFIC LOCATION  - - - - - - - - - - - - - - - - -
 router.delete('/location/:id', (req, res) => {
-  db.Location.findOneAndDelete({
-    _id: req.params.id
-  }, {useFindAndModify: false})
-  .then(deletedLocation => {
-    res.send(deletedLocation)
-  })
-  .catch(err => {
-    console.log(err)
-  })
+    db.Location.findOneAndDelete({
+        _id: req.params.id
+    }, {useFindAndModify: false})
+    .then(deletedLocation => { res.send(deletedLocation) })
+    .catch(err => { console.log(err) })
 })
 
-// GET current user location
+// GET current user location  - - - - - - - - - - - - - - - - -
 router.get('/profile/:id', async (req, res) => {
     try {
         const findUser = await db.User.findById(req.params.id).populate('location')
@@ -53,42 +43,40 @@ router.get('/profile/:id', async (req, res) => {
     }
 })
 
-// PUT (update) current user location
+// PUT (update) current user location  - - - - - - - - - - - - - - - - -
 router.put('/profile/:id', async (req, res) => {
     try {
         const currentUser = await db.User.findById(req.params.id)
         const findLocation = await db.Location.findOne({name: req.body.placeName})
 
         currentUser.location = await findLocation
+        findLocation.user.push(currentUser._id)
 
         await currentUser.save()
-
+        await findLocation.save()
         res.json({currentUser})
-
+        
     } catch (err) {
-        console.log(err)
         res.send(err)
     }
 })
 
-// adding friend list route
+// adding friend list route  - - - - - - - - - - - - - - - - -
 router.get('/friends/:id', async (req,res) => {
     try{
         const findUser = await db.User.findById(req.params.id).populate('friends')
-        console.log("find User:",findUser)
         res.json(findUser)
-    } catch(err){
-        console.log(err)
+    } catch (err) {
+        res.send(err)
     }
 })
 
-// POST -- adding new friends
+// POST -- ADD NEW FRIENDS - - - - - - - - - - - - - - - - -
 router.post('/friends/:id', async(req,res) => {
-
     try {  
         const currentUser = await db.User.findById(req.params.id)
         const findFriend = await db.User.findOne({ name: req.body.name })
-    if (!findFriend) return res.status(400).json({msg: 'Your friend does not have this app' })
+        if (!findFriend) return res.status(400).json({msg: 'Your friend does not have this app' })
         currentUser.friends.push(findFriend._id)
         findFriend.friends.push(currentUser._id)
     
@@ -101,13 +89,14 @@ router.post('/friends/:id', async(req,res) => {
     }
 })
 
+// DELETE FRIENDS - - - - - - - - - - - - - - - - -
 router.delete('/friends/:id', async (req, res) => {
     try {
         const currentUser = await db.User.findById(req.params.id)
         const findFriend = await db.User.findOne({ name: req.body.name })
 
-        currentUser.friends.pop(findFriend._id)
-        findFriend.friends.pop(currentUser._id)
+        currentUser.friends.remove(findFriend._id)
+        findFriend.friends.remove(currentUser._id)
         
         await currentUser.save()
         await findFriend.save()
@@ -118,18 +107,30 @@ router.delete('/friends/:id', async (req, res) => {
     }
 })
 
-// Event Display
-router.get('/events/', async (req,res) => {
-  console.log(req.params.id, "PARAMS")
-  try{
-    const findUser = await db.Events.findById(req.params.id).populate('friends')
-    console.log("find User:",findUser)
-    res.json(findUser)
-  } catch(err){
-    console.log(err)
-  }
- 
+
+// DELETE CURRENT USER - - - - - - - - - - - - - - - - -
+router.delete('/delete/:id', (req, res) => {
+    db.User.findOneAndDelete({
+        _id: req.params.id
+    }, {useFindAndModify: false})
+    .then(deletedUser => { res.send(deletedUser) })
+    .catch(err => { console.log(err) })
 })
+
+
+// GET current user location  - - - - - - - - - - - - - - - - -
+router.get('/events/:id', async (req, res) => {
+  try {
+      const findUser = await db.User.findById(req.params.id).populate('events')
+      res.json(findUser)
+  } catch (err) {
+      console.log(err)
+  }
+})
+
+
+// Event Creation Route
+
 
 // GET current user location  - - - - - - - - - - - - - - - - -
 router.get('/events/:id', async (req, res) => {
@@ -166,7 +167,7 @@ router.post('/events/:id', async (req, res) => {
   }
 })
 
-// POST /users/register -- CREATE new user (aka register)
+// POST /users/register -- CREATE new user (aka register) - - - - - - - - - - - - - - - - -
 router.post('/register', async (req, res) => {
   try {
     // check if user exists alrdy
@@ -208,7 +209,7 @@ router.post('/register', async (req, res) => {
   }
 })
 
-// POST /user/login -- validate login credentials
+// POST /user/login -- validate login credentials - - - - - - - - - - - - - - - - -
 router.post('/login', async (req, res) => {
     try {
         // try to find the user in the database
@@ -241,16 +242,13 @@ router.post('/login', async (req, res) => {
     }
 })
 
-// GET /auth-locked -- will redirect if a bad jwt is found
+// GET /auth-locked -- will redirect if a bad jwt is found - - - - - - - - - - - - - - - - -
   router.get('/auth-locked', authLockedRoute, (req, res) => {
     // do whatever we like with the user
-    console.log(res.locals.user)
+    // console.log(res.locals.user)
     // send private data back
     res.json({ msg: ' welcome to the auth locked route 🐶🐶🐶'})
   })
-
-
-  // PUT /bounties/:id -- UPDATE one bounty and redirect to /bounties
 
 router.put('/profile/edit', (req, res) => {
   db.User.findById(req.params.id)
