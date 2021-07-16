@@ -12,7 +12,7 @@ router.get('/', (req, res) => {
 
 // GET ALL LOCATIONS  - - - - - - - - - - - - - - - - -
 router.get('/location', (req, res) => {
-    db.Location.find().populate('friends')
+    db.Location.find().populate('user')
     .then(foundLocations => { res.json(foundLocations) })
     .catch(err => { console.log(err) })
 })
@@ -50,10 +50,12 @@ router.put('/profile/:id', async (req, res) => {
         const findLocation = await db.Location.findOne({name: req.body.placeName})
 
         currentUser.location = await findLocation
+        findLocation.user.push(currentUser._id)
 
         await currentUser.save()
+        await findLocation.save()
         res.json({currentUser})
-
+        
     } catch (err) {
         res.send(err)
     }
