@@ -42,14 +42,6 @@ app.get('/', middleWare, (req, res) => {
   res.json({ msg:  'hello from the backend! 👋 '})
 })
 
-<<<<<<< HEAD
-// app.get('/api-v1/users/events/:id', (req, res) => {
-=======
-// app.get('/events', (req, res) => {
->>>>>>> 9928a89a2600fb0821b0af410e0af811e89448a6
-//   res.json({msg: 'hello🌊'})
-// })
-
 // listen on port
 app.listen(PORT, () => {
     rowdyResults.print()
