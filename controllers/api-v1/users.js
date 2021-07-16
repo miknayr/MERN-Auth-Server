@@ -105,6 +105,17 @@ router.delete('/friends/:id', async (req, res) => {
     }
 })
 
+// GET current user location  - - - - - - - - - - - - - - - - -
+router.get('/events/:id', async (req, res) => {
+  try {
+      const findUser = await db.User.findById(req.params.id).populate('events')
+      res.json(findUser)
+  } catch (err) {
+      console.log(err)
+  }
+})
+
+
 // Event Creation Route
 
 router.post('/events/:id', async (req, res) => {
