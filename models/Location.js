@@ -2,10 +2,7 @@ const mongoose = require('mongoose')
 
 const LocationSchema = new mongoose.Schema({
 
-    name: [{
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'Location'
-        }],
+    name: String,
 
     user: [{
         type: mongoose.Schema.Types.ObjectId, ref:'User'
