@@ -81,8 +81,8 @@ router.post('/friends/:id', async(req,res) => {
         const currentUser = await db.User.findById(req.params.id)
         const findFriend = await db.User.findOne({ name: req.body.name })
         if (!findFriend) return res.status(400).json({msg: 'Your friend does not have this app' })
-        currentUser.friends.push(findFriend._id)
-        findFriend.friends.push(currentUser._id)
+        currentUser.friends.addToSet(findFriend._id)
+        findFriend.friends.addToSet(currentUser._id)
     
         await currentUser.save()
         await findFriend.save()
