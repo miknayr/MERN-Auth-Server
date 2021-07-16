@@ -3,7 +3,7 @@ const db = require('../../models')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const authLockedRoute = require('./authLockedRoute.js')
-// const { mapValueFieldNames } = require('sequelize/types/lib/utils')
+
 
 // GET /users -- test api endpoint
 router.get('/', (req, res) => {

@@ -2,7 +2,7 @@
 require('dotenv').config()
 // required for server
 const express = require('express')
-const methodOverride = require('method-override')
+
 const cors = require('cors')
 const rowdy = require('rowdy-logger')
 // connect to DB
