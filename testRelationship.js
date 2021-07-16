@@ -21,8 +21,8 @@ const dbConnection = async () => {
     await foundUser2.save()
 
 
-    console.log("found 1:", foundUser1)
-    console.log("found 2", foundUser2)
+    // console.log("found 1:", foundUser1)
+    // console.log("found 2", foundUser2)
    
     // READ -- at long
 
