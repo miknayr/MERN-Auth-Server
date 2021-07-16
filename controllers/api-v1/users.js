@@ -108,7 +108,6 @@ router.delete('/friends/:id', async (req, res) => {
 })
 
 
-
 // DELETE CURRENT USER - - - - - - - - - - - - - - - - -
 router.delete('/delete/:id', (req, res) => {
     db.User.findOneAndDelete({
@@ -132,14 +131,26 @@ router.get('/events/:id', async (req, res) => {
 
 // Event Creation Route
 
+
+// GET current user location  - - - - - - - - - - - - - - - - -
+router.get('/events/:id', async (req, res) => {
+  try {
+      const findUser = await db.User.findById(req.params.id).populate('events')
+      res.json(findUser)
+  } catch (err) {
+      console.log(err)
+  }
+})
+
+// Event Creation Route
 router.post('/events/:id', async (req, res) => {
   let { friend, location, eventName } = req.body
   let findSelf = await db.User.findById(req.params.id)
   let foundUser = await db.User.findOne({ name: friend })
-  let createdEvent = await db.Event.create({eventName})
-  let locationName = req.body.location
+  let createdEvent = await db.Event.create({eventName: eventName})
+  let locationName = await db.Location.findOne({ name: location })
   try {
-    locationName.events.push(createdEvent._id)
+    createdEvent.location.push(locationName._id)
     findSelf.events.push(createdEvent._id)
     foundUser.events.push(createdEvent._id)
     createdEvent.users.push(foundUser._id)
@@ -147,10 +158,10 @@ router.post('/events/:id', async (req, res) => {
     // createdEvent.users.push(locationName._id)
     findSelf.save()
     foundUser.save()
-    // locationName.save()
+    locationName.save()
     createdEvent.save()
-
     console.log(createdEvent)
+    res.redirect(`/api-v1/users/events/${findSelf._id}`)
   } catch(err) {
     console.log(`you have an ${err} in Event postroute`)
   }
