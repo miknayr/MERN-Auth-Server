@@ -36,7 +36,7 @@ router.delete('/location/:id', (req, res) => {
 // GET current user location  - - - - - - - - - - - - - - - - -
 router.get('/profile/:id', async (req, res) => {
     try {
-        const findUser = await db.User.findById(req.params.id).populate('location')
+        const findUser = await db.User.findById(req.params.id).populate('location').populate('friends')
         res.json(findUser)
     } catch (err) {
         console.log(err)
@@ -46,16 +46,20 @@ router.get('/profile/:id', async (req, res) => {
 // PUT (update) current user location  - - - - - - - - - - - - - - - - -
 router.put('/profile/:id', async (req, res) => {
     try {
-        const currentUser = await db.User.findById(req.params.id)
-        const findLocation = await db.Location.findOne({name: req.body.placeName})
+        const currentUser = await db.User.findById(req.params.id).populate('location').populate('friends')
+        const oldLocation = await db.Location.findOne({name: currentUser.location[0].name})
+        const newLocation = await db.Location.findOne({name: req.body.placeName})
 
-        currentUser.location = await findLocation
-        findLocation.user.push(currentUser._id)
+        currentUser.location = await newLocation
+        oldLocation.user.remove(currentUser._id)
+        newLocation.user.push(currentUser._id)
 
         await currentUser.save()
-        await findLocation.save()
-        res.json({currentUser})
+        await oldLocation.save()
+        await newLocation.save()
         
+        res.json({currentUser})
+
     } catch (err) {
         res.send(err)
     }
